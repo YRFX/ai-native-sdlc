@@ -1,0 +1,38 @@
+{
+  "name": "ai-sdlc",
+  "version": "1.0.0",
+  "description": "The six-stage AI-native software development lifecycle from Anthropic's playbook, as an executable CodeBuddy plugin. Each stage produces one version-controlled Markdown artifact and stops at a human gate: Plan writes intent.md, Design turns an accepted intent into spec.md, Build turns an accepted spec into plan.md then implements it, Test proves the change and regression-tests the agent config itself, Deploy runs the REVIEW.md passes on the PR and stops for human approval, Maintain watches bands.yaml control bands and files the next intent.md when a band breaks. Ships eight skills, two read-only subagents, artifact-gate and prod-guard hooks, and templates. Every hook is inert unless the repository contains a .sdlc/ directory.",
+  "author": {
+    "name": "Hieuvu7"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ghiaog123/ai-native-sdlc",
+  "repository": "https://github.com/ghiaog123/ai-native-sdlc",
+  "keywords": [
+    "sdlc",
+    "ai-native",
+    "intent-driven",
+    "spec-driven",
+    "governance",
+    "approval-gates",
+    "control-bands",
+    "code-review"
+  ],
+  "category": "Development Tools",
+  "commands": [],
+  "agents": [
+    "sdlc-reviewer",
+    "sdlc-diagnostician"
+  ],
+  "skills": [
+    "ai-sdlc-init",
+    "ai-sdlc-status",
+    "sdlc-plan",
+    "sdlc-design",
+    "sdlc-build",
+    "sdlc-test",
+    "sdlc-deploy",
+    "sdlc-maintain"
+  ],
+  "hooks": "./hooks/hooks.codebuddy.json"
+}

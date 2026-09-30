@@ -1,6 +1,6 @@
 ---
 name: ai-sdlc-init
-description: Scaffold a repository for the AI-native SDLC loop — create .sdlc/, generate project memory (CLAUDE.md for Claude Code, AGENTS.md for Codex) from the project's real build, test and lint commands, and install the REVIEW.md and bands.yaml policy templates. Use when the user says "initialize the SDLC loop", "set up ai-sdlc here", "onboard this repo onto the AI-native SDLC", "turn the loop on for this project", or runs /ai-sdlc-init. Idempotent and safe to re-run. Do NOT use for reporting progress on in-flight changes (ai-sdlc-status), or for any stage work itself (sdlc-plan through sdlc-maintain).
+description: Scaffold a repository for the AI-native SDLC loop — create .sdlc/, generate project memory (CLAUDE.md for Claude Code, AGENTS.md for Codex, .codebuddy/rules for CodeBuddy) from the project's real build, test and lint commands, and install the REVIEW.md and bands.yaml policy templates. Use when the user says "initialize the SDLC loop", "set up ai-sdlc here", "onboard this repo onto the AI-native SDLC", "turn the loop on for this project", or runs /ai-sdlc-init. Idempotent and safe to re-run. Do NOT use for reporting progress on in-flight changes (ai-sdlc-status), or for any stage work itself (sdlc-plan through sdlc-maintain).
 ---
 
 # AI-SDLC Init
@@ -23,12 +23,13 @@ Turn the loop on for this repository. Creating `.sdlc/` is the opt-in switch tha
 
 4. Only after approval, create `.sdlc/` if absent. Add a short `.sdlc/README.md` only when the project has no local workflow instructions, explaining that each change gets a slug directory holding `intent.md`, `spec.md`, and `plan.md`.
 
-5. Copy the plugin's `REVIEW.md` and `bands.yaml` templates to the **repository root**, and only when the destination does not already exist. These two files are project-root policy, not per-change artifacts — the stage skills and the `sdlc-reviewer` subagent read them from the root. An existing file is authoritative: show a diff and offer a merge proposal instead of replacing it.
+5. Copy the plugin's `REVIEW.md` and `bands.yaml` templates (under `$CODEBUDDY_PLUGIN_ROOT/templates/` when running under CodeBuddy, otherwise the plugin's `templates/` directory) to the **repository root**, and only when the destination does not already exist. These two files are project-root policy, not per-change artifacts — the stage skills and the `sdlc-reviewer` subagent read them from the root. An existing file is authoritative: show a diff and offer a merge proposal instead of replacing it.
 
 6. Write project memory from the approved commands plus the repository's existing conventions and architecture. Which file depends on the harness, and **both are written when the project is used from both**:
 
    - `CLAUDE.md` — read by Claude Code.
    - `AGENTS.md` — read by Codex.
+   - `.codebuddy/rules` — read by CodeBuddy (always injected as project rules).
 
    Detect which already exist. If neither exists, ask which harnesses the team uses and write only those. If one exists, write the sibling with the same content so the two do not drift. Never overwrite user-authored content in either file: show a unified diff for any proposed guidance addition outside the marked block below, and ask for an explicit decision before changing it.
 
@@ -55,6 +56,7 @@ Turn the loop on for this repository. Creating `.sdlc/` is the opt-in switch tha
 
    - **Claude Code** — plugin hooks are active as soon as the plugin is enabled. Offer to also wire them into `.claude/settings.json` for projects that prefer explicit per-project config; preserve existing settings and show the exact JSON merge before writing.
    - **Codex** — plugin hooks require a one-time trust grant that only the interactive Codex TUI can give. Say so plainly: until the user trusts the hooks there, the gates are advisory and only the project-memory layer is holding the loop. Do not offer to bypass the trust prompt.
+   - **CodeBuddy** — hook commands are declared through `.codebuddy-plugin/plugin.json` and `hooks/hooks.codebuddy.json`; they become enforcing once the plugin is enabled. If CodeBuddy prompts, confirm them in the `/hooks` panel.
 
 9. Print a completion summary: created paths, skipped existing paths, proposed diffs, extracted commands, flagged commands, whether hooks are enforcing or advisory, and the items a human must still fill in — team conventions, architecture notes, production bands, and protected deployment targets.
 

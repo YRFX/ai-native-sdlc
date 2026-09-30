@@ -1,10 +1,11 @@
 # AI-Native SDLC — Anthropic Playbook
 
-**An AI-native software development lifecycle you can actually run** — six stages, one committed Markdown artifact per stage, and a human approval gate at every handoff. Packaged as a [Claude Code](https://claude.com/product/claude-code) plugin, this repository turns [Anthropic's AI-Native SDLC playbook](https://claude.com/blog/the-ai-native-sdlc-playbook) into something a team installs, not just something they read.
+**An AI-native software development lifecycle you can actually run** — six stages, one committed Markdown artifact per stage, and a human approval gate at every handoff. Packaged as a [Claude Code](https://claude.com/product/claude-code) plugin — and usable as a [CodeBuddy](https://www.codebuddy.cn) plugin via its bundled `.codebuddy-plugin/` manifest — this repository turns [Anthropic's AI-Native SDLC playbook](https://claude.com/blog/the-ai-native-sdlc-playbook) into something a team installs, not just something they read.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 ![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-black)
 ![Codex plugin](https://img.shields.io/badge/Codex-plugin-black)
+![CodeBuddy plugin](https://img.shields.io/badge/CodeBuddy-plugin-black)
 ![Stages](https://img.shields.io/badge/stages-6-black)
 
 ![The AI-native SDLC loop: Plan writes intent.md, Design writes spec.md, Build writes plan.md, Test produces tests and evals, Deploy runs REVIEW.md, Maintain watches bands.yaml, and a control-band breach files the next intent.md to restart the loop. A human gate separates every stage.](docs/loop.svg)
@@ -42,9 +43,12 @@ Two subagents serve it: `sdlc-reviewer` runs the `REVIEW.md` passes in Stage 5, 
 
 ## Install
 
-Works on **Claude Code** and **Codex**. Both read the same plugin directory — the six
-stage skills, the hooks, and the artifact templates are shared; only the manifest and the
-subagent format differ, and both are shipped.
+Works on **Claude Code**, **Codex**, and **CodeBuddy**. Claude Code and Codex read the same
+`plugins/ai-sdlc/` directory; CodeBuddy reads the same `skills/`, `hooks/`, `agents/`, and
+templates through its bundled `.codebuddy-plugin/` manifest. The six stage skills, the hook
+scripts, and the artifact templates are shared verbatim across all three — only each
+harness's manifest (`.claude-plugin`, `.codex-plugin`, `.codebuddy-plugin`) and the subagent
+format (`.md` for Claude Code and CodeBuddy, `.toml` for Codex) differ.
 
 A marketplace source can be a GitHub repo, a URL, or a local path, so a clone installs
 the same way the published repo does.
@@ -127,9 +131,34 @@ the plugin's hook state in the Codex TUI plugin menu after installing. Do not re
 `--dangerously-bypass-hook-trust` to skip this; the trust prompt is the thing that makes a
 hook safe to run.
 
-Project memory also differs: Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`.
-`ai-sdlc-init` detects which the project uses and writes the same content to both when
-both apply, from one template, so they cannot drift.
+Project memory also differs: Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`, and
+CodeBuddy reads `.codebuddy/rules`. `ai-sdlc-init` detects which the project uses and writes
+the same content to each when applicable, from one template, so they cannot drift.
+
+### CodeBuddy
+
+CodeBuddy loads the plugin from the same `plugins/ai-sdlc/` folder via its `.codebuddy-plugin/plugin.json`
+manifest; the skills, subagents (`.md`), hook scripts, and templates are identical to the
+other two harnesses. There is no separate plugin to install — point CodeBuddy at the folder:
+
+```bash
+# local development, no install step
+codebuddy --plugin-dir ./plugins/ai-sdlc
+
+# or validate the plugin package first
+codebuddy plugin validate ./plugins/ai-sdlc
+```
+
+The hook commands in `hooks/hooks.codebuddy.json` point at the shared scripts under
+`hooks/` via the `$CODEBUDDY_PLUGIN_ROOT` variable, so the same `artifact-gate.sh`,
+`prod-guard.sh`, `session-context.sh`, and `prompt-nudge.sh` enforce the loop on all three
+harnesses. Skills are namespaced by the plugin name, so invoke them as `/ai-sdlc:ai-sdlc-init`
+and `/ai-sdlc:ai-sdlc-status` (or just describe the task and let the description trigger them).
+
+One difference matters. **CodeBuddy hooks become enforcing once the plugin is enabled; if
+CodeBuddy prompts, confirm them in the `/hooks` panel.** Until then the gates are advisory
+and only the project-rules layer (`.codebuddy/rules`, written by `/ai-sdlc:ai-sdlc-init`)
+is holding the loop.
 
 Read the next section before you install — this plugin registers hooks.
 
@@ -138,7 +167,8 @@ Read the next section before you install — this plugin registers hooks.
 Read this before installing. This plugin ships hooks, and hooks run automatically.
 
 Once the plugin is enabled, four hooks are registered for every session (immediately on
-Claude Code; on Codex after you grant hook trust in its TUI):
+Claude Code; on Codex after you grant hook trust in its TUI; on CodeBuddy once the plugin
+is enabled and the hooks are confirmed in the `/hooks` panel):
 
 | Hook | Fires | Does |
 | --- | --- | --- |
@@ -153,7 +183,7 @@ In a repository that has opted in, expect the gates to actually stop you. That i
 
 - `.sdlc/OPTOUT` — silences every hook for that repository, permanently, no other change needed.
 - `AI_SDLC_ALLOW_PROD=1` — authorizes one production command after a human has approved it.
-- `/plugin uninstall ai-sdlc` (Claude Code) or `codex plugin remove ai-sdlc@ai-native-sdlc` (Codex) — removes the hooks entirely.
+- `/plugin uninstall ai-sdlc` (Claude Code), `codex plugin remove ai-sdlc@ai-native-sdlc` (Codex), or disable the plugin / remove `.codebuddy-plugin` (CodeBuddy) — removes the hooks entirely.
 
 Each block message names the rule that matched and the escape hatch, so a blocked action is never a mystery.
 
@@ -191,7 +221,7 @@ Skill auto-triggering is probabilistic. Persistence here does not rely on it —
 | Enforcement | `PreToolUse` hooks block source writes with no accepted `plan.md`, and catch common production commands | Yes |
 | Restoration | `SessionStart` re-injects the loop state at the start of every session | Yes |
 | Nudge | `UserPromptSubmit` adds one line naming the current stage and pending gate | Yes |
-| Memory | `/ai-sdlc-init` writes an idempotent block into the project's `CLAUDE.md` | Yes |
+| Memory | `/ai-sdlc-init` writes an idempotent block into the project's `CLAUDE.md`, `AGENTS.md`, or `.codebuddy/rules` | Yes |
 
 The ON switch is a single directory. `/ai-sdlc-init` creates `.sdlc/`, and that one act enables the lifecycle permanently for that repository. Every hook exits silently in repositories without it, so installing this plugin cannot change behavior in unrelated projects. `.sdlc/OPTOUT` is the OFF switch.
 
@@ -235,13 +265,16 @@ Evals are regression tests for the **agent configuration** rather than the code.
 
 No. Every hook checks for a `.sdlc/` directory first and exits silently without one. This is verified behavior, not an intention.
 
-### Does it work with Codex, or only Claude Code?
+### Does it work with Codex and CodeBuddy, or only Claude Code?
 
-Both. The plugin ships a Claude Code manifest and a Codex manifest side by side, and the
-skills, hook scripts, and templates are shared verbatim. The two differences are handled
-for you: subagents ship in `.md` (Claude Code) and `.toml` (Codex), and project memory is
-written to `CLAUDE.md` or `AGENTS.md` as the harness requires. The one thing you must do
-yourself on Codex is grant hook trust in its TUI, without which the gates are advisory.
+All three. The plugin ships a Claude Code, a Codex, and a CodeBuddy manifest side by side, and
+the skills, hook scripts, subagents, and templates are shared verbatim. The harness-specific
+bits are handled for you: subagents ship in `.md` (Claude Code and CodeBuddy) and `.toml`
+(Codex), project memory is written to `CLAUDE.md`, `AGENTS.md`, or `.codebuddy/rules` as the
+harness requires, and hooks register through each harness's own mechanism (`hooks.json`,
+`hooks.codex.json`, `hooks.codebuddy.json`). The one thing you must do yourself is grant hook
+trust on Codex (TUI) and confirm the hooks in CodeBuddy's `/hooks` panel — without those, the
+gates are advisory and only the project-memory layer is holding the loop.
 
 For any other agent, the methodology in [`docs/PLAYBOOK.md`](docs/PLAYBOOK.md) is
 tool-neutral and the artifact templates are plain Markdown.

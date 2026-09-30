@@ -14,7 +14,7 @@ Answer one question: for each in-flight change, what is the next human decision?
 2. Run the plugin's state script — it is the single source of truth for stage derivation, and the same script the `SessionStart` and `UserPromptSubmit` hooks use:
 
    ```bash
-   "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/hooks/sdlc-state.sh" --long
+   "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-$CODEBUDDY_PLUGIN_ROOT}}/hooks/sdlc-state.sh" --long
    ```
 
    It emits one tab-separated row per slug: `slug`, `stage (name)`, `detail`, `next gate`. Stage is **derived** from which artifacts exist and what git says about them; there is no stored state file, so nothing can be stale. Do not reimplement this logic in the conversation — a second implementation is a second thing to get wrong.
