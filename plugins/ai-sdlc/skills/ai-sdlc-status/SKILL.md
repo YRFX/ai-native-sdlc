@@ -21,7 +21,7 @@ Answer one question: for each in-flight change, what is the next human decision?
 
    If the script is unavailable, say so, then fall back to deriving the same thing by hand: `intent.md` present but uncommitted means Stage 1 awaiting acceptance; `intent.md` committed with no `spec.md` means Stage 1 done; and so on through `spec.md`, `plan.md`, verification evidence, PR evidence, and merge or deployment evidence.
 
-3. Add the git detail the script does not carry: for each slug, state whether its artifacts and the implementation they govern are committed, dirty, or untracked.
+3. Add the git detail the script does not carry: for each slug, state whether its artifacts and the implementation they govern are committed, dirty, or untracked. In a multi-repo change, also report the git state of each `.repo/<repo>/` checkout named by the spec's `## Repo impact`.
 
 4. Flag stalls explicitly:
    - any artifact that is uncommitted, and therefore not yet accepted;

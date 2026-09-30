@@ -22,6 +22,20 @@ code_is_dirty() {
     path="${entry:3}"
     [[ "$path" == .sdlc/* ]] || return 0
   done < <(git -C "$ROOT" status --porcelain --untracked-files=all 2>/dev/null || true)
+  repo_code_dirty && return 0
+  return 1
+}
+
+# In a multi-repo project, component code lives under .repo/<repo>/, which is
+# git-ignored in the control repo and therefore invisible to the status above.
+# Scan each checked-out component repository for uncommitted work.
+repo_code_dirty() {
+  local repo
+  [[ -d "$ROOT/.repo" ]] || return 1
+  for repo in "$ROOT/.repo"/*; do
+    [[ -d "$repo/.git" ]] || continue
+    [[ -z "$(git -C "$repo" status --porcelain 2>/dev/null)" ]] || return 0
+  done
   return 1
 }
 

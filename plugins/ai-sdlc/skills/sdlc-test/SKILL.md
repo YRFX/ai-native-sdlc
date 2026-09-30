@@ -31,12 +31,12 @@ If any artifact, required section, or implementation is missing, return to
 1. Read `plan.md` **Proof** in full.
 2. Read `spec.md` **Verification strategy** in full.
 3. Map the planned proof to the spec's requirements and verification strategy.
-4. Discover the project's documented test commands and test suites.
+4. Discover the project's documented test commands and test suites. In a multi-repo change, run the suite inside each affected `.repo/<repo>/` checkout and record which repository each result came from.
 5. Execute all tests in the project, including the tests named by the plan where
    applicable.
 6. Capture actual command output, exit status, skipped tests, and failures.
 7. Quote the real relevant output in the verification report.
-8. Determine whether this change modified `CLAUDE.md`, any skill, or any hook.
+8. Determine whether this change modified `AGENTS.md`, `CLAUDE.md`, any skill, or any hook.
 9. If it did, discover the project's existing eval suite for that configuration.
 10. Run the applicable eval suite and quote its actual output and exit status.
 11. If no eval suite exists, state that none was found; do not invent an eval.

@@ -28,3 +28,7 @@ else
   printf '%s\n' '(no change slugs yet)'
 fi
 printf '\n%s\n' 'Standing rule: an agent never self-approves a gate.'
+
+if [[ -f "$ROOT/context/architecture.md" ]]; then
+  printf '\n%s\n' 'Multi-repo project — component registry: context/architecture.md; code is staged under .repo/'
+fi

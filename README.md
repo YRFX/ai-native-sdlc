@@ -131,9 +131,10 @@ the plugin's hook state in the Codex TUI plugin menu after installing. Do not re
 `--dangerously-bypass-hook-trust` to skip this; the trust prompt is the thing that makes a
 hook safe to run.
 
-Project memory also differs: Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`, and
-CodeBuddy reads `.codebuddy/rules`. `ai-sdlc-init` detects which the project uses and writes
-the same content to each when applicable, from one template, so they cannot drift.
+Project memory also differs: Codex reads `AGENTS.md`, Claude Code reads `CLAUDE.md`. `ai-sdlc-init`
+writes the canonical memory block to `AGENTS.md` (the Codex convention, also read by a growing set
+of agents) and mirrors it into `CLAUDE.md` when the project uses Claude Code. It does **not** create
+a `.codebuddy/rules` file; on CodeBuddy, rely on the hooks and skills for enforcement.
 
 ### CodeBuddy
 
@@ -157,8 +158,8 @@ and `/ai-sdlc:ai-sdlc-status` (or just describe the task and let the description
 
 One difference matters. **CodeBuddy hooks become enforcing once the plugin is enabled; if
 CodeBuddy prompts, confirm them in the `/hooks` panel.** Until then the gates are advisory
-and only the project-rules layer (`.codebuddy/rules`, written by `/ai-sdlc:ai-sdlc-init`)
-is holding the loop.
+and only the project-memory layer (`AGENTS.md`, written by `/ai-sdlc:ai-sdlc-init`) is
+holding the loop.
 
 Read the next section before you install — this plugin registers hooks.
 
@@ -212,6 +213,17 @@ Check where any change sits at any time:
 /ai-sdlc-status
 ```
 
+## Multi-repo projects
+
+The loop can also span multiple code repositories from one control repository. Initialize the lifecycle in the control repo as usual; `ai-sdlc-init` additionally creates `context/` and copies `context/architecture.md` (the component-repository registry, shipped as a usage example) and appends `.repo/` to `.gitignore`. On a later re-run, once the registry lists real repositories with `remote:` URLs, `ai-sdlc-init` clones each into `.repo/` (skipping any already present).
+
+- **Impact analysis** — `sdlc-plan` records the affected repositories in `intent.md`, and `sdlc-design` reads `context/architecture.md` to map each requirement to the repository that owns it (the spec's `## Repo impact`). A referenced repo missing from the registry is raised as a blocking concern.
+- **Staging** — `sdlc-build` clones each affected remote into `.repo/<name>/` (or fetches if present), creates a feature branch per repo, and implements the code there. List edited paths with the `.repo/<repo>/` prefix in `plan.md` so the plan gate still matches them.
+- **Verify & ship** — `sdlc-test` runs in each `.repo/<repo>/`; `sdlc-deploy` opens a PR per component repository.
+- **Status** — `ai-sdlc-status` and the `sdlc-state` hook also report the git state of each `.repo/<repo>/` checkout.
+
+Single-repo projects are unaffected: `context/architecture.md` may keep the example entry and the extra sections are ignored.
+
 ## Stays on after install
 
 Skill auto-triggering is probabilistic. Persistence here does not rely on it — four layers keep the lifecycle asserted, strongest first:
@@ -221,7 +233,7 @@ Skill auto-triggering is probabilistic. Persistence here does not rely on it —
 | Enforcement | `PreToolUse` hooks block source writes with no accepted `plan.md`, and catch common production commands | Yes |
 | Restoration | `SessionStart` re-injects the loop state at the start of every session | Yes |
 | Nudge | `UserPromptSubmit` adds one line naming the current stage and pending gate | Yes |
-| Memory | `/ai-sdlc-init` writes an idempotent block into the project's `CLAUDE.md`, `AGENTS.md`, or `.codebuddy/rules` | Yes |
+| Memory | `/ai-sdlc-init` writes an idempotent block into `AGENTS.md` (and `CLAUDE.md` when Claude Code is used) | Yes |
 
 The ON switch is a single directory. `/ai-sdlc-init` creates `.sdlc/`, and that one act enables the lifecycle permanently for that repository. Every hook exits silently in repositories without it, so installing this plugin cannot change behavior in unrelated projects. `.sdlc/OPTOUT` is the OFF switch.
 
@@ -259,7 +271,7 @@ Spec-driven development covers writing a spec and planning from it. This covers 
 
 ### What are evals here, and why do they matter?
 
-Evals are regression tests for the **agent configuration** rather than the code. When `CLAUDE.md`, a skill, or a hook changes, the eval suite re-runs — because a configuration change can silently degrade agent behavior with no failing unit test to show for it.
+Evals are regression tests for the **agent configuration** rather than the code. When `AGENTS.md`, `CLAUDE.md`, a skill, or a hook changes, the eval suite re-runs — because a configuration change can silently degrade agent behavior with no failing unit test to show for it.
 
 ### Will installing this plugin affect my other repositories?
 
@@ -270,8 +282,7 @@ No. Every hook checks for a `.sdlc/` directory first and exits silently without 
 All three. The plugin ships a Claude Code, a Codex, and a CodeBuddy manifest side by side, and
 the skills, hook scripts, subagents, and templates are shared verbatim. The harness-specific
 bits are handled for you: subagents ship in `.md` (Claude Code and CodeBuddy) and `.toml`
-(Codex), project memory is written to `CLAUDE.md`, `AGENTS.md`, or `.codebuddy/rules` as the
-harness requires, and hooks register through each harness's own mechanism (`hooks.json`,
+(Codex), project memory is written to `AGENTS.md` (canonically) and mirrored to `CLAUDE.md` when the project uses Claude Code, and hooks register through each harness's own mechanism (`hooks.json`,
 `hooks.codex.json`, `hooks.codebuddy.json`). The one thing you must do yourself is grant hook
 trust on Codex (TUI) and confirm the hooks in CodeBuddy's `/hooks` panel — without those, the
 gates are advisory and only the project-memory layer is holding the loop.

@@ -44,6 +44,7 @@ Read the applicable guidance and constrain the proposed design by it.
 1. Read the accepted `intent.md` in full.
 2. Discover and read applicable organization skills and project policies.
 3. Log the skills or policies found, or log that none were found.
+3b. In a multi-repo project, read `context/architecture.md` for the component-repository topology and dependencies. Perform a cross-repo impact analysis: for each requirement, name the repository or repositories that own it and record it in the spec's `## Repo impact` section. If a referenced repository is absent from the registry, raise a `blocking` flagged concern and propose adding it to `context/architecture.md`.
 4. Convert desired outcomes into numbered requirements that can be verified.
 5. State clear non-goals to protect the accepted scope.
 6. Design the architecture, flow, data model, and interfaces within policy.
@@ -77,6 +78,9 @@ explicit approval.
 
 ## Design
 [architecture, flow, data model, interfaces]
+
+## Repo impact
+[multi-repo only: map each requirement to the repository that owns it]
 
 ## Data and interfaces
 [API/schema changes, persistence, contracts]

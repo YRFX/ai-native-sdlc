@@ -11,6 +11,11 @@
 <!-- Define interfaces, data flow, states, validation, and rollout behavior. -->
 [design decisions]
 
+## Repo impact
+
+<!-- Multi-repo only: map each requirement to the repository that owns it. -->
+- [repo]: [requirements owned / what changes]
+
 ## Organization skill constraints
 
 <!-- Security, compliance, and data skills constrain this design; name the applicable rules. -->

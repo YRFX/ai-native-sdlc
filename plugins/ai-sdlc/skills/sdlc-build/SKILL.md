@@ -79,8 +79,17 @@ If the engineer corrects the plan, revise it and repeat the gate.
 
 Begin Phase B only after explicit approval of `plan.md`.
 
-1. Read and follow the project's `CLAUDE.md` before touching implementation.
-2. Use `CLAUDE.md` as project memory and instructions.
+0. If the accepted spec declares a `## Repo impact` section, this is a multi-repo change. Ensure `.repo/` exists at the control-repo root. For each listed repository, prepare its checkout before editing:
+
+   - **Clone when absent:** `git clone <remote from context/architecture.md> .repo/<name>`.
+   - **Reuse when present:**
+     1. Verify the checkout's `origin` remote matches the URL registered for this repo in `context/architecture.md`; on mismatch, stop and report the divergence — never proceed against the wrong source.
+     2. Check `git -C .repo/<name> status --porcelain`; if the tree is dirty, stop and tell the user to commit, stash, or reset the leftover work first — never stack the new change on top of uncommitted state.
+     3. Align to upstream: `git -C .repo/<name> fetch origin`, then `git -C .repo/<name> checkout master` and `git -C .repo/<name> reset --hard origin/master` so the working tree reflects the latest trunk.
+   - **Branch:** create a feature branch for this change based on the aligned `master` (substitute the project's trunk name if it differs from `master`), then implement the code inside `.repo/<repo>/`, reading that repo's own project memory rather than only the control repo's.
+   - Record the branch name(s) in `plan.md`. List every edited path with the `.repo/<repo>/` prefix so the plan gate can match it.
+1. Read and follow the project's `AGENTS.md` (and `CLAUDE.md` if present) before touching implementation.
+2. Use `AGENTS.md` as project memory and instructions.
 3. Apply available skills as policy rather than bypassing them.
 4. Respect hooks as guardrails; do not evade or disable them.
 5. Use parallel sessions only for genuinely independent work when available and

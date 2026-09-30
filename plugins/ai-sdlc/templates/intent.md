@@ -13,6 +13,10 @@ Author: [name]. Status: draft.
 ## Affected users and systems
 [who and what is impacted]
 
+<!-- Multi-repo only: list component repositories from context/architecture.md; leave empty for single-repo. -->
+## Affected repositories
+[repos this change touches]
+
 <!-- Include hard limits: compatibility, privacy, cost, reliability, and rollout requirements. -->
 ## Constraints
 [limitations or requirements]

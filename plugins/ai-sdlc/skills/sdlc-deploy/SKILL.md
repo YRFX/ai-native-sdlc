@@ -21,7 +21,7 @@ Proceed only when `sdlc-test` has completed with green verification evidence and
 the code is ready for review.
 
 Read the test report. Confirm it includes actual passing output and applicable
-eval evidence for any changed `CLAUDE.md`, skill, or hook.
+eval evidence for any changed `AGENTS.md`, `CLAUDE.md`, skill, or hook.
 
 If verification is incomplete, stale after changes, missing, or red, return to
 `sdlc-test` and stop.
@@ -42,7 +42,7 @@ If verification is incomplete, stale after changes, missing, or red, return to
 7. Enforce the nit cap from `REVIEW.md`; for example, if it says `max 5 nits`,
    include at most five nits.
 8. If `REVIEW.md` has no cap, use judgment and keep nits actionable.
-9. Create or update the pull request with context, test evidence, and findings.
+9. Create or update the pull request with context, test evidence, and findings. In a multi-repo change, open a PR in each affected component repository under `.repo/<repo>/` and link them from the control repo's change record.
 10. Post the findings as a PR comment or include them in the PR body.
 11. Cite the review findings and explicitly stop for human approval.
 

@@ -32,7 +32,7 @@ ambiguous.
 3. Interview the originator about what users cannot do today.
 4. Ask why that inability matters to customers, operators, or the business.
 5. Ask what breaks, remains costly, or becomes risky if the work is skipped.
-6. Ask which users, systems, integrations, and teams are affected.
+6. Ask which users, systems, integrations, and teams are affected. In a multi-repo project, also ask which component repositories are in scope, drawing from `context/architecture.md`.
 7. Ask for known limitations, requirements, deadlines, compatibility needs, and
    regulatory or operational constraints.
 8. Ask follow-up questions whenever an answer is vague, contradictory, or lacks

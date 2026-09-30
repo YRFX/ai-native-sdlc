@@ -47,13 +47,14 @@ except:
 
 # Files protected by governance that always require a plan, even if they match
 # the general exemptions. The gate exists to prevent unauthorized changes to:
-# - Agent institutional memory and policy (CLAUDE.md, .claude/*)
+# - Agent institutional memory and policy (AGENTS.md, CLAUDE.md, .claude/*)
 # - CI/CD pipelines and secrets (GitHub, GitLab, Jenkins, CircleCI, Azure)
 # - Container images and deployment manifests (Docker, k8s, Helm, Terraform)
 is_protected() {
     local path="$1"
     case "$path" in
         CLAUDE.md|\
+        AGENTS.md|\
         .claude/settings.json|\
         .claude/skills/*/SKILL.md|\
         .claude/hooks/*|\
