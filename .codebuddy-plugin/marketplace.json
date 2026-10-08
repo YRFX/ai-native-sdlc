@@ -1,0 +1,15 @@
+{
+  "name": "ai-native-sdlc",
+  "owner": {
+    "name": "infinitus-devops"
+  },
+  "plugins": [
+    {
+      "name": "ai-sdlc",
+      "source": "./plugins/ai-sdlc",
+      "description": "Six-stage AI-native SDLC as skills, commands, subagents and hooks: intent.md → spec.md → plan.md → PR → production → control bands → next intent.md.",
+      "license": "MIT",
+      "keywords": ["sdlc", "ai-native", "intent-driven", "governance", "approval-gates", "control-bands", "code-review"]
+    }
+  ]
+}
