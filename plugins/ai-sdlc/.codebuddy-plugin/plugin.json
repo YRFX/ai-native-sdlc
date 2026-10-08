@@ -21,18 +21,18 @@
   "category": "Development Tools",
   "commands": [],
   "agents": [
-    "sdlc-reviewer",
-    "sdlc-diagnostician"
+    "./agents/sdlc-reviewer.md",
+    "./agents/sdlc-diagnostician.md"
   ],
   "skills": [
-    "ai-sdlc-init",
-    "ai-sdlc-status",
-    "sdlc-plan",
-    "sdlc-design",
-    "sdlc-build",
-    "sdlc-test",
-    "sdlc-deploy",
-    "sdlc-maintain"
+    "./skills/ai-sdlc-init",
+    "./skills/ai-sdlc-status",
+    "./skills/sdlc-plan",
+    "./skills/sdlc-design",
+    "./skills/sdlc-build",
+    "./skills/sdlc-test",
+    "./skills/sdlc-deploy",
+    "./skills/sdlc-maintain"
   ],
   "hooks": "./hooks/hooks.codebuddy.json"
 }
